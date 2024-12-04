@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -23,9 +24,21 @@ public class LoginController {
 
         return userRepository.findByUsername(username)
                 .map(user -> {
-                    boolean success = user.getPassword().equals(password); // Lembre-se de usar BCrypt para produção
-                    return ResponseEntity.ok(Map.of("success", (Object) success)); // Cast para Object
+                    boolean success = user.getPassword().equals(password); // Use hashing para produção
+                    Map<String, Object> responseMap = new HashMap<>();
+                    if (success) {
+                        responseMap.put("success", true);
+                        responseMap.put("username", user.getUsername());
+                        responseMap.put("role", user.getRole());
+                    } else {
+                        responseMap.put("success", false);
+                    }
+                    return ResponseEntity.ok(responseMap);
                 })
-                .orElse(ResponseEntity.ok(Map.of("success", (Object) false))); // Cast para Object
+                .orElseGet(() -> {
+                    Map<String, Object> responseMap = new HashMap<>();
+                    responseMap.put("success", false); // Usuário não encontrado
+                    return ResponseEntity.ok(responseMap);
+                });
     }
 }

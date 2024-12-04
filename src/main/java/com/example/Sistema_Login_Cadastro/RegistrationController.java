@@ -27,9 +27,11 @@ public class RegistrationController {
 
         User newUser = new User();
         newUser.setUsername(username);
-        newUser.setPassword(password); // Hash de senha em produção
-        userRepository.save(newUser);
+        newUser.setPassword(password); // Adicione hashing aqui em produção
+        newUser.setRole("Viewer"); // Padrão
 
+        userRepository.save(newUser);
         return ResponseEntity.ok(Map.of("message", "Usuário cadastrado com sucesso"));
     }
 }
+
